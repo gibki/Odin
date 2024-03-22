@@ -942,10 +942,11 @@ gb_internal Ast *ast_when_stmt(AstFile *f, Token token, Ast *cond, Ast *body, As
 }
 
 
-gb_internal Ast *ast_return_stmt(AstFile *f, Token token, Array<Ast *> const &results) {
+gb_internal Ast *ast_return_stmt(AstFile *f, Token token, Array<Ast *> const &results, isize return_branch_id) {
 	Ast *result = alloc_ast_node(f, Ast_ReturnStmt);
 	result->ReturnStmt.token = token;
 	result->ReturnStmt.results = slice_from_array(results);
+	result->ReturnStmt.return_branch_id = return_branch_id;
 	return result;
 }
 
@@ -1011,10 +1012,11 @@ gb_internal Ast *ast_case_clause(AstFile *f, Token token, Array<Ast *> const &li
 }
 
 
-gb_internal Ast *ast_defer_stmt(AstFile *f, Token token, Ast *stmt) {
+gb_internal Ast *ast_defer_stmt(AstFile *f, Token token, Ast *stmt, isize return_branch_id) {
 	Ast *result = alloc_ast_node(f, Ast_DeferStmt);
 	result->DeferStmt.token = token;
 	result->DeferStmt.stmt = stmt;
+	result->DeferStmt.return_branch_id = return_branch_id;
 	return result;
 }
 
@@ -4528,6 +4530,16 @@ gb_internal Ast *parse_return_stmt(AstFile *f) {
 		return ast_bad_stmt(f, token, f->curr_token);
 	}
 
+	isize return_branch_id = 0;
+	if(f->curr_token.kind == Token_At){
+		expect_token(f, Token_At);
+		expect_token(f, Token_OpenParen);
+		Token id = expect_token(f, Token_Integer);
+		expect_token(f, Token_CloseParen);
+		ExactValue ev_bigint = exact_value_from_token(f, id);
+		return_branch_id = mp_get_i32(&ev_bigint.value_integer);
+	}
+
 	auto results = array_make<Ast *>(ast_allocator(f));
 
 	while (f->curr_token.kind != Token_Semicolon && f->curr_token.kind != Token_CloseBrace) {
@@ -4541,7 +4553,7 @@ gb_internal Ast *parse_return_stmt(AstFile *f) {
 	}
 
 	expect_semicolon(f);
-	return ast_return_stmt(f, token, results);
+	return ast_return_stmt(f, token, results, return_branch_id);
 }
 
 gb_internal Ast *parse_for_stmt(AstFile *f) {
@@ -4737,6 +4749,17 @@ gb_internal Ast *parse_defer_stmt(AstFile *f) {
 	}
 
 	Token token = expect_token(f, Token_defer);
+
+	isize return_branch_id = 0;
+	if(f->curr_token.kind == Token_At){
+		expect_token(f, Token_At);
+		expect_token(f, Token_OpenParen);
+		Token id = expect_token(f, Token_Integer);
+		expect_token(f, Token_CloseParen);
+		ExactValue ev_bigint = exact_value_from_token(f, id);
+		return_branch_id = mp_get_i32(&ev_bigint.value_integer);
+	}
+
 	Ast *stmt = parse_stmt(f);
 	switch (stmt->kind) {
 	case Ast_EmptyStmt:
@@ -4751,7 +4774,7 @@ gb_internal Ast *parse_defer_stmt(AstFile *f) {
 		break;
 	}
 
-	return ast_defer_stmt(f, token, stmt);
+	return ast_defer_stmt(f, token, stmt, return_branch_id);
 }
 
 

@@ -528,6 +528,7 @@ AST_KIND(_ComplexStmtBegin, "", bool) \
 	AST_KIND(ReturnStmt, "return statement", struct { \
 		Token token; \
 		Slice<Ast *> results; \
+		isize return_branch_id; \
 	}) \
 	AST_KIND(ForStmt, "for statement", struct { \
 		Scope *scope; \
@@ -582,7 +583,7 @@ AST_KIND(_ComplexStmtBegin, "", bool) \
 		Ast *body;   \
 		bool partial; \
 	}) \
-	AST_KIND(DeferStmt,  "defer statement",  struct { Token token; Ast *stmt; }) \
+	AST_KIND(DeferStmt,  "defer statement",  struct { Token token; Ast *stmt; isize return_branch_id; }) \
 	AST_KIND(BranchStmt, "branch statement", struct { Token token; Ast *label; }) \
 	AST_KIND(UsingStmt,  "using statement",  struct { \
 		Token token; \

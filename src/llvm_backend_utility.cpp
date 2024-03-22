@@ -447,8 +447,8 @@ gb_internal lbValue lb_emit_or_else(lbProcedure *p, Ast *arg, Ast *else_expr, Ty
 	}
 }
 
-gb_internal void lb_build_return_stmt(lbProcedure *p, Slice<Ast *> const &return_results);
-gb_internal void lb_build_return_stmt_internal(lbProcedure *p, lbValue res);
+gb_internal void lb_build_return_stmt(lbProcedure *p, Slice<Ast *> const &return_results, isize return_branch_id);
+gb_internal void lb_build_return_stmt_internal(lbProcedure *p, lbValue res, isize return_branch_id);
 
 gb_internal lbValue lb_emit_or_return(lbProcedure *p, Ast *arg, TypeAndValue const &tv) {
 	lbValue lhs = {};
@@ -477,10 +477,10 @@ gb_internal lbValue lb_emit_or_return(lbProcedure *p, Ast *arg, TypeAndValue con
 			lbValue found = map_must_get(&p->module->values, end_entity);
 			lb_emit_store(p, found, rhs);
 
-			lb_build_return_stmt(p, {});
+			lb_build_return_stmt(p, {}, 0);
 		} else {
 			GB_ASSERT(tuple->variables.count == 1);
-			lb_build_return_stmt_internal(p, rhs);
+			lb_build_return_stmt_internal(p, rhs, 0);
 		}
 	}
 	lb_start_block(p, continue_block);

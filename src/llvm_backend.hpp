@@ -278,6 +278,7 @@ struct lbDefer {
 	lbDeferKind kind;
 	isize       scope_index;
 	isize       context_stack_count;
+	isize		return_branch_id;
 	lbBlock *   block;
 	union {
 		Ast *stmt;
@@ -429,7 +430,7 @@ gb_internal lbValue lb_emit_matrix_ev(lbProcedure *p, lbValue s, isize row, isiz
 
 gb_internal lbValue lb_emit_arith(lbProcedure *p, TokenKind op, lbValue lhs, lbValue rhs, Type *type);
 gb_internal lbValue lb_emit_byte_swap(lbProcedure *p, lbValue value, Type *end_type);
-gb_internal void lb_emit_defer_stmts(lbProcedure *p, lbDeferExitKind kind, lbBlock *block);
+gb_internal void lb_emit_defer_stmts(lbProcedure *p, lbDeferExitKind kind, lbBlock *block, isize);
 gb_internal lbValue lb_emit_transmute(lbProcedure *p, lbValue value, Type *t);
 gb_internal lbValue lb_emit_comp(lbProcedure *p, TokenKind op_kind, lbValue left, lbValue right);
 gb_internal lbValue lb_emit_call(lbProcedure *p, lbValue value, Array<lbValue> const &args, ProcInlining inlining = ProcInlining_none);
@@ -457,7 +458,7 @@ gb_internal lbValue lb_typeid(lbModule *m, Type *type);
 
 gb_internal lbValue lb_address_from_load_or_generate_local(lbProcedure *p, lbValue value);
 gb_internal lbValue lb_address_from_load(lbProcedure *p, lbValue value);
-gb_internal void    lb_add_defer_node(lbProcedure *p, isize scope_index, Ast *stmt);
+gb_internal void    lb_add_defer_node(lbProcedure *p, isize scope_index, Ast *stmt, isize return_branch_id);
 gb_internal lbAddr lb_add_local_generated(lbProcedure *p, Type *type, bool zero_init);
 
 gb_internal lbValue lb_emit_runtime_call(lbProcedure *p, char const *c_name, Array<lbValue> const &args);

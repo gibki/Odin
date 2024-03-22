@@ -3407,7 +3407,7 @@ gb_internal lbValue lb_build_expr_internal(lbProcedure *p, Ast *expr) {
 
 		lb_emit_if(p, lb_emit_try_has_value(p, rhs), then, else_);
 		lb_start_block(p, else_);
-		lb_emit_defer_stmts(p, lbDeferExit_Branch, block);
+		lb_emit_defer_stmts(p, lbDeferExit_Branch, block, 0);
 		lb_emit_jump(p, block);
 		lb_start_block(p, then);
 

@@ -731,7 +731,7 @@ gb_internal void lb_end_procedure_body(lbProcedure *p) {
 	if (p->type->Proc.result_count == 0) {
 		instr = LLVMGetLastInstruction(p->curr_block->block);
 		if (!lb_is_instr_terminating(instr)) {
-			lb_emit_defer_stmts(p, lbDeferExit_Return, nullptr);
+			lb_emit_defer_stmts(p, lbDeferExit_Return, nullptr, 0);
 			lb_set_debug_position_to_procedure_end(p);
 			LLVMBuildRetVoid(p->builder);
 		}
@@ -1249,7 +1249,7 @@ gb_internal lbValue lb_emit_call(lbProcedure *p, lbValue value, Array<lbValue> c
 				}
 			}
 
-			lb_add_defer_proc(p, p->scope_index, deferred, result_as_args);
+			lb_add_defer_proc(p, p->scope_index, deferred, result_as_args, 0);
 		}
 	}
 
